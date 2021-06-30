@@ -472,16 +472,24 @@ type ObjectzonePlayerEnteredEvent struct {
 }
 
 // ObjectzonePlayerLeftEvent handles OBJECTZONE_PLAYER_LEFT [zone_id] [zone_name] [zone_pos_x] [zone_pos_y] [player_name] [player_pos_x] [player_pos_y] [player_direction_x] [player_direction_y] [game_time]
-type ObjectzonePlayerLeftEvent struct{}
+type ObjectzonePlayerLeftEvent struct {
+	// TODO: implement
+}
 
 // ObjectzoneSpawnedEvent handles OBJECTZONE_SPAWNED [id] [name] [pos_x] [pos_y] [xdir] [ydir]
-type ObjectzoneSpawnedEvent struct{}
+type ObjectzoneSpawnedEvent struct {
+	// TODO: implement
+}
 
 // ObjectzoneZoneEnteredEvent handles OBJECTZONE_ZONE_ENTERED [zone_id] [zone_name] [zone_posx] [zone_posy] [target_id] [target_name] [target_pos_x] [target_pos_y] [target_dir_x] [target_dir_y] [game_time]
-type ObjectzoneZoneEnteredEvent struct{}
+type ObjectzoneZoneEnteredEvent struct {
+	// TODO: implement
+}
 
 // OnlineAiEvent handles ONLINE_AI <name> <team> <score>
-type OnlineAiEvent struct{}
+type OnlineAiEvent struct {
+	// TODO: implement
+}
 
 // OnlinePlayerEvent handles ONLINE_PLAYER <name> <id> <r> <g> <b> <access_level> <did_login?> [<ping> <team>]
 type OnlinePlayerEvent struct {
@@ -497,13 +505,19 @@ type OnlinePlayerEvent struct {
 }
 
 // OnlinePlayersAliveEvent handles ONLINE_PLAYERS_ALIVE <player1> <player2> <player3> ...
-type OnlinePlayersAliveEvent struct{}
+type OnlinePlayersAliveEvent struct {
+	// TODO: implement
+}
 
 // OnlinePlayersCountEvent handles ONLINE_PLAYERS_COUNT <humans> <ais> <humans alive> <ai alive> <humans dead> <ai dead>
-type OnlinePlayersCountEvent struct{}
+type OnlinePlayersCountEvent struct {
+	// TODO: implement
+}
 
 // OnlinePlayersDeadEvent handles ONLINE_PLAYERS_DEAD <player1> <player2> <player3> ...
-type OnlinePlayersDeadEvent struct{}
+type OnlinePlayersDeadEvent struct {
+	// TODO: implement
+}
 
 // OnlineTeamEvent handles ONLINE_TEAM <name> <screen name>
 type OnlineTeamEvent struct {
@@ -512,13 +526,19 @@ type OnlineTeamEvent struct {
 }
 
 // PlayerAiEnteredEvent handles PLAYER_AI_ENTERED <name> <screen name>
-type PlayerAiEnteredEvent struct{}
+type PlayerAiEnteredEvent struct {
+	// TODO: implement
+}
 
 // PlayerAiLeftEvent handles PLAYER_AI_LEFT [ai_name]
-type PlayerAiLeftEvent struct{}
+type PlayerAiLeftEvent struct {
+	// TODO: implement
+}
 
 // PlayerColoredNameEvent handles PLAYER_COLORED_NAME [player_useranme] [player_colored_name]
-type PlayerColoredNameEvent struct{}
+type PlayerColoredNameEvent struct {
+	// TODO: implement
+}
 
 // PlayerEnteredGridEvent handles PLAYER_ENTERED_GRID <name> <IP> <screen name>
 type PlayerEnteredGridEvent struct {
@@ -528,13 +548,19 @@ type PlayerEnteredGridEvent struct {
 }
 
 // PlayerEnteredSpectatorEvent handles PLAYER_ENTERED_SPECTATOR <name> <IP> <screen name>
-type PlayerEnteredSpectatorEvent struct{}
+type PlayerEnteredSpectatorEvent struct {
+	// TODO: implement
+}
 
 // PlayerGridposEvent handles PLAYER_GRIDPOS [player_username] [pos_x] [pos_y] [dir_x] [dir_y] [cycle_speed] [player_rubber] [cycle_rubber] [team] [player_braking] [player_brake_reservoir]
-type PlayerGridposEvent struct{}
+type PlayerGridposEvent struct {
+	// TODO: implement
+}
 
 // PlayerKilledEvent handles PLAYER_KILLED [player_username] [ip_address] [pos_x] [pos_y] [dir_x] [dir_y]
-type PlayerKilledEvent struct{}
+type PlayerKilledEvent struct {
+	// TODO: implement
+}
 
 // PlayerLeftEvent handles PLAYER_LEFT <name> <IP>
 type PlayerLeftEvent struct {
@@ -558,19 +584,29 @@ type PositionsEvent struct {
 }
 
 // QueueFinishedEvent handles QUEUE_FINISHED [time]
-type QueueFinishedEvent struct{}
+type QueueFinishedEvent struct {
+	// TODO: implement
+}
 
 // QueueStartedEvent handles QUEUE_STARTED [time]
-type QueueStartedEvent struct{}
+type QueueStartedEvent struct {
+	// TODO: implement
+}
 
 // RoundCommencingEvent handles ROUND_COMMENCING [current_round] [total_rounds]
-type RoundCommencingEvent struct{}
+type RoundCommencingEvent struct {
+	// TODO: implement
+}
 
 // RoundEndedEvent handles ROUND_ENDED [time]
-type RoundEndedEvent struct{}
+type RoundEndedEvent struct {
+	// TODO: implement
+}
 
 // RoundFinishedEvent handles ROUND_FINISHED [time]
-type RoundFinishedEvent struct{}
+type RoundFinishedEvent struct {
+	// TODO: implement
+}
 
 // RoundScoreEvent handles ROUND_SCORE <score difference> <player> [<team>]
 type RoundScoreEvent struct {
@@ -586,7 +622,9 @@ type RoundScoreTeamEvent struct {
 }
 
 // RoundStartedEvent handles ROUND_STARTED [time]
-type RoundStartedEvent struct{}
+type RoundStartedEvent struct {
+	// TODO: implement
+}
 
 // RoundWinnerEvent handles ROUND_WINNER <team> <players>
 type RoundWinnerEvent struct {
@@ -602,19 +640,29 @@ type SacrificeEvent struct {
 }
 
 // SetWinnerEvent handles SET_WINNER [team_name]
-type SetWinnerEvent struct{}
+type SetWinnerEvent struct {
+	// TODO: implement
+}
 
 // ShutdownEvent handles SHUTDOWN <time> when the server has been shut down using exit/quit commands
-type ShutdownEvent struct{}
+type ShutdownEvent struct {
+	// TODO: implement
+}
 
 // SoccerBallPlayerEnteredEvent handles SOCCER_BALL_PLAYER_ENTERED [player_auth_name] [team]
-type SoccerBallPlayerEnteredEvent struct{}
+type SoccerBallPlayerEnteredEvent struct {
+	// TODO: implement
+}
 
 // SoccerGoalPlayerEnteredEvent handles SOCCER_GOAL_PLAYER_ENTERED [player_auth_name] [player_team] [team owner of the goal]
-type SoccerGoalPlayerEnteredEvent struct{}
+type SoccerGoalPlayerEnteredEvent struct {
+	// TODO: implement
+}
 
 // SoccerGoalScoredEvent handles SOCCER_GOAL_SCORED <goal's team> <scored team> <scored player> <time>
-type SoccerGoalScoredEvent struct{}
+type SoccerGoalScoredEvent struct {
+	// TODO: implement
+}
 
 // SpawnPositionTeamEvent handles SPAWN_POSITION_TEAM [team_name] [new_position]
 type SpawnPositionTeamEvent struct {
@@ -623,31 +671,49 @@ type SpawnPositionTeamEvent struct {
 }
 
 // StartChallengeEvent handles START_CHALLENGE [time]
-type StartChallengeEvent struct{}
+type StartChallengeEvent struct {
+	// TODO: implement
+}
 
 // SvgCreatedEvent handles SVG_CREATED
-type SvgCreatedEvent struct{}
+type SvgCreatedEvent struct {
+	// TODO: implement
+}
 
 // TacticalPositionEvent handles TACTICAL_POSITION [time] [name] [tact_pos]
-type TacticalPositionEvent struct{}
+type TacticalPositionEvent struct {
+	// TODO: implement
+}
 
 // TacticalStatisticsEvent handles TACTICAL_STATISTICS [tact_pos] [name] [time] [state] [kills]
-type TacticalStatisticsEvent struct{}
+type TacticalStatisticsEvent struct {
+	// TODO: implement
+}
 
 // TargetzoneConqueredEvent handles TARGETZONE_CONQUERED <object_id> <zone_name> <cx> <cy> [<player> [<team>]]
-type TargetzoneConqueredEvent struct{}
+type TargetzoneConqueredEvent struct {
+	// TODO: implement
+}
 
 // TargetzonePlayerEnterEvent handles TARGETZONE_PLAYER_ENTER <object_id> <zone_name> <cx> <cy> <player> <x> <y> <xdir> <ydir> <time>
-type TargetzonePlayerEnterEvent struct{}
+type TargetzonePlayerEnterEvent struct {
+	// TODO: implement
+}
 
 // TargetzonePlayerLeftEvent handles TARGETZONE_PLAYER_LEFT <object_id> <zone_name> <cx> <cy> <player> <x> <y> <xdir> <ydir>
-type TargetzonePlayerLeftEvent struct{}
+type TargetzonePlayerLeftEvent struct {
+	// TODO: implement
+}
 
 // TargetzoneTimeoutEvent handles TARGETZONE_TIMEOUT <object_id> <zone_name> <cx> <cy>
-type TargetzoneTimeoutEvent struct{}
+type TargetzoneTimeoutEvent struct {
+	// TODO: implement
+}
 
 // TeamColoredNameEvent handles TEAM_COLORED_NAME [team_name] [team_colored_name]
-type TeamColoredNameEvent struct{}
+type TeamColoredNameEvent struct {
+	// TODO: implement
+}
 
 // TeamCreatedEvent handles TEAM_CREATED <team name>
 type TeamCreatedEvent struct {
@@ -678,34 +744,56 @@ type TeamRenamedEvent struct {
 }
 
 // VoterEvent handles VOTER [player_name] [0-against|1-for] [description]
-type VoterEvent struct{}
+type VoterEvent struct {
+	// TODO: implement
+}
 
 // VoteCreatedEvent handles VOTE_CREATED [suggestor] [description]
-type VoteCreatedEvent struct{}
+type VoteCreatedEvent struct {
+	// TODO: implement
+}
 
 // WaitForExternalScriptEvent handles WAIT_FOR_EXTERNAL_SCRIPT (see also: WAIT_FOR_EXTERNAL_SCRIPT and WAIT_FOR_EXTERNAL_SCRIPT_TIMEOUT)
-type WaitForExternalScriptEvent struct{}
+type WaitForExternalScriptEvent struct {
+	// TODO: implement
+}
 
 // WinzoneActivatedEvent handles WINZONE_ACTIVATED [id] [name] [xpos] [ypos]
-type WinzoneActivatedEvent struct{}
+type WinzoneActivatedEvent struct {
+	// TODO: implement
+}
 
 // WinzonePlayerEnterEvent handles WINZONE_PLAYER_ENTER <player> <x> <y> <xdir> <ydir> <time>
-type WinzonePlayerEnterEvent struct{}
+type WinzonePlayerEnterEvent struct {
+	// TODO: implement
+}
 
 // ZoneCollapsedEvent handles ZONE_COLLAPSED <zone_id> <object_id> <cx> <cy>
-type ZoneCollapsedEvent struct{}
+type ZoneCollapsedEvent struct {
+	// TODO: implement
+}
 
 // ZoneCreatedEvent handles ZONE_CREATED [effect] [id] [name] [xpos] [ypos] [xdir] [ydir]
-type ZoneCreatedEvent struct{}
+type ZoneCreatedEvent struct {
+	// TODO: implement
+}
 
 // ZoneGridposEvent handles ZONE_GRIDPOS [effect] [id] [name] [radius] [growth] [posx] [posy] [velx] [vely] [r] [g] [b]
-type ZoneGridposEvent struct{}
+type ZoneGridposEvent struct {
+	// TODO: implement
+}
 
 // ZoneRouteStoppedEvent handles ZONE_ROUTE_STOPPED [effect] [id] [name] [posx] [posy] [velx] [vely]
-type ZoneRouteStoppedEvent struct{}
+type ZoneRouteStoppedEvent struct {
+	// TODO: implement
+}
 
 // ZoneShotReleasedEvent handles ZONE_SHOT_RELEASED [0-shot|1-deathshot] [id] [player_name] [zone_pos_x] [zone_pos_y] [zone_dir_x] [zone_dir_y]
-type ZoneShotReleasedEvent struct{}
+type ZoneShotReleasedEvent struct {
+	// TODO: implement
+}
 
 // ZoneSpawnedEvent handles ZONE_SPAWNED <zone_effect> <object id> <zone_name> <x> <y> <xdir> <ydir>
-type ZoneSpawnedEvent struct{}
+type ZoneSpawnedEvent struct {
+	// TODO: implement
+}

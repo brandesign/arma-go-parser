@@ -121,6 +121,11 @@ func (c *Consumer) OnOnlinePlayer(evt *event.OnlinePlayerEvent) error {
 	p.Green = evt.Green
 	p.Blue = evt.Blue
 
+	t := c.state.GetTeamByPlayerId(p.Id)
+	if t != nil && t.Id != evt.TeamId {
+		t.RemovePlayer(p.Id)
+	}
+
 	if evt.TeamId != "" {
 		c.state.GetTeam(evt.TeamId).AddPlayer(p)
 	}

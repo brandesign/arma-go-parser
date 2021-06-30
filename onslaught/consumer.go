@@ -7,6 +7,7 @@ import (
 	"github.com/brandesign/arma-go-parser/parser"
 	"github.com/brandesign/arma-go-parser/tron"
 	"math/rand"
+	"strings"
 )
 
 const (
@@ -31,28 +32,12 @@ func NewConsumer(gs *tron.GameState, o Options) (*Consumer, error) {
 		o:  o,
 	}
 
-	// warm up team setup
-	if err := c.OnTeamCreated(&event.TeamCreatedEvent{TeamId: teamBlue}); err != nil {
-		return nil, err
-	}
-	if err := c.OnTeamCreated(&event.TeamCreatedEvent{TeamId: teamGold}); err != nil {
-		return nil, err
-	}
-
-	if err := c.OnSpawnPositionTeam(&event.SpawnPositionTeamEvent{
-		TeamId:   teamBlue,
-		Position: 0,
-	}); err != nil {
-		return nil, err
-	}
-	if err := c.OnSpawnPositionTeam(&event.SpawnPositionTeamEvent{
-		TeamId:   teamGold,
-		Position: 1,
-	}); err != nil {
+	if err := c.reset(); err != nil {
 		return nil, err
 	}
 
 	subs := []*parser.Subscription{
+		event.NewMatch(c),
 		event.DeathTeamkill(c),
 		event.DeathSuicide(c),
 		event.DeathFrag(c),
@@ -79,6 +64,10 @@ type Consumer struct {
 
 	defTeam *tron.Team
 	ofTeam  *tron.Team
+}
+
+func (c *Consumer) OnNewMatch(evt *event.NewMatchEvent) error {
+	return c.reset()
 }
 
 func (c *Consumer) GetSubscriptions() []*parser.Subscription {
@@ -116,11 +105,10 @@ func (c *Consumer) OnGameTime(evt *event.GameTimeEvent) error {
 
 		c.zoneSpawned = true
 
-		// TODO: show att def message
+		if err := c.printRoleMessages(); err != nil {
+			return err
+		}
 	}
-
-	// TODO: $this->timeMessage();
-	// TODO: $this->handleBonus();
 
 	if c.remainingTime() <= 0 && !c.zoneConquered {
 		// if the attacking team didn't conquer the zone within round_time destroy them - losers!
@@ -129,9 +117,15 @@ func (c *Consumer) OnGameTime(evt *event.GameTimeEvent) error {
 				return err
 			}
 		}
+
+		return nil
 	}
 
-	return nil
+	if err := c.printRemainingTime(); err != nil {
+		return err
+	}
+
+	return c.checkBonus()
 }
 
 func (c *Consumer) OnTeamCreated(evt *event.TeamCreatedEvent) error {
@@ -178,6 +172,33 @@ func (c *Consumer) OnNextRound(evt *event.NextRoundEvent) error {
 	return nil
 }
 
+func (c *Consumer) reset() error {
+	c.zoneConquered = false
+	c.zoneSpawned = false
+
+	if err := c.OnTeamCreated(&event.TeamCreatedEvent{TeamId: teamBlue}); err != nil {
+		return err
+	}
+	if err := c.OnTeamCreated(&event.TeamCreatedEvent{TeamId: teamGold}); err != nil {
+		return err
+	}
+
+	if err := c.OnSpawnPositionTeam(&event.SpawnPositionTeamEvent{
+		TeamId:   teamBlue,
+		Position: 0,
+	}); err != nil {
+		return err
+	}
+	if err := c.OnSpawnPositionTeam(&event.SpawnPositionTeamEvent{
+		TeamId:   teamGold,
+		Position: 1,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *Consumer) remainingTime() int {
 	return c.o.RoundTime - c.gs.GameTime
 }
@@ -190,10 +211,10 @@ func (c *Consumer) playerDied(pId string) error {
 		return fmt.Errorf("cannot find team for player %s", pId)
 	}
 
+	color := t.GetString(keyColor)
 	respawns := p.GetInt(keyRespawns)
 	if respawns >= c.o.Respawns {
-		// TODO: die message
-		return nil
+		return command.ConsoleMessage(fmt.Sprintf("%s%s 0xffffffdied", color, p.ScreenName))
 	} else {
 		r := c.o.SpawnRadius
 		x := randFloat64(250-r, 250+r)
@@ -206,8 +227,6 @@ func (c *Consumer) playerDied(pId string) error {
 		respawns++
 		p.SetInt(keyRespawns, respawns)
 
-		color := t.GetString(keyColor)
-
 		msg := fmt.Sprintf("%s%s 0xffffffhas been respawned. 0x00ff00%d 0xffffffrespawns remaining", color, p.ScreenName, c.o.Respawns-respawns)
 		if err := command.ConsoleMessage(msg); err != nil {
 			return err
@@ -215,6 +234,102 @@ func (c *Consumer) playerDied(pId string) error {
 	}
 
 	return nil
+}
+
+func (c *Consumer) printRoleMessages() error {
+	if err := roleMessage("Defend!", c.defTeam); err != nil {
+		return err
+	}
+	if err := roleMessage("Attack!", c.ofTeam); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Consumer) printRemainingTime() error {
+	if c.zoneConquered {
+		return nil
+	}
+
+	remaining := c.remainingTime()
+	if remaining <= 0 {
+		return nil
+	}
+
+	if remaining%60 == 0 || remaining == 30 || remaining == 10 || remaining == 5 {
+		var time int
+		var unit string
+		if remaining >= 60 {
+			time = remaining / 60
+			unit = "minutes"
+		} else {
+			time = remaining
+			unit = "seconds"
+		}
+
+		return command.ConsoleMessage(fmt.Sprintf("%d %s remaining", time, unit))
+	}
+
+	return nil
+}
+
+func (c *Consumer) checkBonus() error {
+	if c.zoneConquered {
+		return nil
+	}
+
+	if c.remainingTime()%c.o.BonusTime != 0 {
+		return nil
+	}
+
+	if c.gs.GameTime < c.o.BonusTime {
+		return nil
+	}
+
+	if err := command.AddScoreTeam(c.defTeam.Id, c.o.BonusScore); err != nil {
+		return err
+	}
+
+	msg := fmt.Sprintf("%d bonus points awarded to %s%s", c.o.BonusScore, c.defTeam.GetString(keyColor), c.defTeam.ScreenName)
+
+	return command.ConsoleMessage(msg)
+}
+
+func roleMessage(msg string, t *tron.Team) error {
+	color := t.GetString(keyColor)
+	name := t.ScreenName
+	stars := fmt.Sprintf("%s%s", color, decorateString("", "*", 40))
+	msgs := []string{
+		stars,
+		fmt.Sprintf("%s%s", color, decorateString(fmt.Sprintf("%s %s", name, msg), "*", 40)),
+		stars,
+	}
+
+	for _, m := range msgs {
+		if err := command.ConsoleMessage(m); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func decorateString(str, decorator string, length int) string {
+	if len(str) >= length {
+		return str
+	}
+
+	if len(str) == 0 {
+		return strings.Repeat(decorator, length)
+	}
+
+	if len(str)%2 != 0 {
+		str += " "
+	}
+
+	dec := strings.Repeat(decorator, (length-len(str)-2)/2)
+	return fmt.Sprintf("%s %s %s", dec, str, dec)
 }
 
 func spawnZones() error {

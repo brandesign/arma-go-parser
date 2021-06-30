@@ -61,8 +61,8 @@ func ConsoleMessage(msg string) error {
 	return Rawf("CONSOLE_MESSAGE %s", msg)
 }
 
-func Comment(msg string) error {
-	return Rawf("# %s", msg)
+func AddScoreTeam(teamId string, score int) error {
+	return Rawf("ADD_SCORE_TEAM %s %d", teamId, score)
 }
 
 func Include(cfgPath string) error {
