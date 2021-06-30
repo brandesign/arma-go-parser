@@ -9,19 +9,31 @@ import (
 )
 
 type Handlers map[string]func() interface{}
-type Listener func(evt interface{}) error
 
-func NewParser(handlers Handlers) *Parser {
+type Subscriber interface {
+	GetSubscriptions() []*Subscription
+}
+
+func NewParser(handlers Handlers, subscribers ...Subscriber) (*Parser, error) {
 	p := &Parser{
-		listeners: map[string][]Listener{},
+		listeners: map[string][]func(evt interface{}) error{},
 		handlers:  handlers,
 	}
 
-	return p
+	for _, subscriber := range subscribers {
+		subs := subscriber.GetSubscriptions()
+		for _, sub := range subs {
+			if err := p.addListener(sub.name, sub.listener); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return p, nil
 }
 
 type Parser struct {
-	listeners map[string][]Listener
+	listeners map[string][]func(evt interface{}) error
 	handlers  Handlers
 }
 
@@ -30,14 +42,13 @@ func (p *Parser) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("done")
+			command.Logf("context done")
 			return
 		default:
 			if scanner.Scan() {
 				l := NewLine(scanner.Text())
-				fmt.Println("Got Line:", l.String())
 				if err := p.handleLine(l); err != nil {
-					fmt.Printf("cannot handle Line: %s, error: %v\n", l, err)
+					command.Logf("cannot handle Line: %s, error: %v\n", l, err)
 				}
 			}
 		}
@@ -54,10 +65,10 @@ func (p *Parser) Subscribe(subscriptions ...*Subscription) error {
 	return nil
 }
 
-func (p *Parser) addListener(evtName string, l Listener) error {
+func (p *Parser) addListener(evtName string, l func(evt interface{}) error) error {
 	ls, ok := p.listeners[evtName]
 	if !ok {
-		p.listeners[evtName] = []Listener{l}
+		p.listeners[evtName] = []func(evt interface{}) error{l}
 
 		return command.Rawf("LADDERLOG_WRITE_%s 1", evtName)
 	} else {
@@ -87,7 +98,7 @@ func (p *Parser) handleLine(l Line) error {
 	return nil
 }
 
-func NewSubscription(evt string, l Listener) *Subscription {
+func NewSubscription(evt string, l func(evt interface{}) error) *Subscription {
 	return &Subscription{
 		name:     evt,
 		listener: l,
@@ -96,7 +107,7 @@ func NewSubscription(evt string, l Listener) *Subscription {
 
 type Subscription struct {
 	name     string
-	listener Listener
+	listener func(evt interface{}) error
 }
 
 func (h Handlers) handleLine(l Line) (interface{}, error) {

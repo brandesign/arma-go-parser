@@ -1,15 +1,22 @@
 package command
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 func Raw(cmd string) error {
-	_, err := fmt.Print(cmd)
+	_, err := fmt.Println(cmd)
 
 	return err
 }
 
 func Rawf(format string, a ...interface{}) error {
-	_, err := fmt.Printf(format, a)
+	if !strings.HasSuffix(format, "\n") {
+		format += "\n"
+	}
+	_, err := fmt.Printf(format, a...)
 
 	return err
 }
@@ -46,6 +53,10 @@ func Kill(playerId string) error {
 	return Rawf("KILL %s", playerId)
 }
 
+func Respawn(playerId string, posX, posY, dirX, dirY float64, msg bool) error {
+	return Rawf("RESPAWN_PLAYER %s %d %s %s %d %d", playerId, msg, posX, posY, dirX, dirY)
+}
+
 func ConsoleMessage(msg string) error {
 	return Rawf("CONSOLE_MESSAGE %s", msg)
 }
@@ -64,4 +75,8 @@ func SInclude(cfgPath string) error {
 
 func RInclude(cfgPath string) error {
 	return Rawf("RINCLUDE %s", cfgPath)
+}
+
+func Logf(format string, a ...interface{}) {
+	_ = Rawf(fmt.Sprintf("# %s %s", time.Now(), format), a...)
 }

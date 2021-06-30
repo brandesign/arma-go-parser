@@ -51,6 +51,20 @@ func (g *GameState) GetTeam(id string) *Team {
 	return ti.(*Team)
 }
 
+func (g *GameState) GetTeamByPlayerId(playerId string) *Team {
+	var t *Team
+	g.teams.Range(func(key, value interface{}) bool {
+		team := value.(*Team)
+		_, ok := t.Players[playerId]
+		if ok {
+			t = team
+		}
+		return t == nil
+	})
+
+	return t
+}
+
 func (g *GameState) RemoveTeam(id string) {
 	g.teams.Delete(id)
 }
