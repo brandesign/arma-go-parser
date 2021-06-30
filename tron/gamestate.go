@@ -55,7 +55,7 @@ func (g *GameState) GetTeamByPlayerId(playerId string) *Team {
 	var t *Team
 	g.teams.Range(func(key, value interface{}) bool {
 		team := value.(*Team)
-		_, ok := t.Players[playerId]
+		_, ok := team.Players[playerId]
 		if ok {
 			t = team
 		}

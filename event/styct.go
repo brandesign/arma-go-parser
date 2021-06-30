@@ -392,7 +392,8 @@ type GameEndEvent struct {
 
 // GameTimeEvent handles GAME_TIME <time> (see also: GAME_TIME_INTERVAL)
 type GameTimeEvent struct {
-	Time int
+	Time    int
+	Precise float64
 }
 
 // InvalidCommandEvent handles INVALID_COMMAND [command] [player_username] [ip_address] [access_level] [params]
@@ -492,6 +493,7 @@ type OnlineAiEvent struct {
 }
 
 // OnlinePlayerEvent handles ONLINE_PLAYER <name> <id> <r> <g> <b> <access_level> <did_login?> [<ping> <team>]
+// ONLINE_PLAYER jip 1 11 12 10 20 114 0.49454 team_blue
 type OnlinePlayerEvent struct {
 	Name        string
 	PlayerId    string
@@ -718,6 +720,7 @@ type TeamColoredNameEvent struct {
 // TeamCreatedEvent handles TEAM_CREATED <team name>
 type TeamCreatedEvent struct {
 	TeamId string
+	Name   string
 }
 
 // TeamDestroyedEvent handles TEAM_DESTROYED <team name>

@@ -10,6 +10,7 @@ func NewConsumer(state *GameState) *Consumer {
 	c := &Consumer{state: state}
 
 	subs := []*parser.Subscription{
+		event.TeamCreated(c),
 		event.PlayerEnteredGrid(c),
 		event.OnlinePlayer(c),
 		event.OnlineTeam(c),
@@ -37,6 +38,13 @@ type Consumer struct {
 
 func (c *Consumer) GetSubscriptions() []*parser.Subscription {
 	return c.subs
+}
+
+func (c *Consumer) OnTeamCreated(evt *event.TeamCreatedEvent) error {
+	t := c.state.GetTeam(evt.TeamId)
+	t.ScreenName = evt.Name
+
+	return nil
 }
 
 func (c *Consumer) OnOnlineTeam(evt *event.OnlineTeamEvent) error {

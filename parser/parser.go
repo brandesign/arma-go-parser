@@ -55,16 +55,6 @@ func (p *Parser) Run(ctx context.Context) {
 	}
 }
 
-func (p *Parser) Subscribe(subscriptions ...*Subscription) error {
-	for _, s := range subscriptions {
-		if err := p.addListener(s.name, s.listener); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (p *Parser) addListener(evtName string, l func(evt interface{}) error) error {
 	ls, ok := p.listeners[evtName]
 	if !ok {

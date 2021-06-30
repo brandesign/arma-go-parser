@@ -134,10 +134,8 @@ func (c *Consumer) OnTeamCreated(evt *event.TeamCreatedEvent) error {
 	switch t.Id {
 	case teamBlue:
 		t.SetString(keyColor, "0x4488ff")
-		t.ScreenName = "Team Blue"
 	case teamGold:
 		t.SetString(keyColor, "0xffff44")
-		t.ScreenName = "Team Gold"
 	default:
 		return fmt.Errorf("unknown team = %s", t.Id)
 	}
