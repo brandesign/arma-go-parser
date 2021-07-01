@@ -12,7 +12,6 @@ import (
 
 const (
 	keyRespawns = "respawns"
-	keyColor    = "color"
 
 	teamBlue = "team_blue"
 	teamGold = "team_gold"
@@ -43,7 +42,6 @@ func NewConsumer(gs *tron.GameState, o Options) (*Consumer, error) {
 		event.DeathFrag(c),
 		event.BasezoneConquered(c),
 		event.GameTime(c),
-		event.TeamCreated(c),
 		event.SpawnPositionTeam(c),
 		event.NextRound(c),
 	}
@@ -93,6 +91,19 @@ func (c *Consumer) OnBasezoneConquered(evt *event.BasezoneConqueredEvent) error 
 }
 
 func (c *Consumer) OnGameTime(evt *event.GameTimeEvent) error {
+	if c.remainingTime() <= 0 && !c.zoneConquered {
+		// if the attacking team didn't conquer the zone within round_time destroy them - losers!
+		for _, p := range c.ofTeam.Players {
+			if p.Alive {
+				if err := p.Kill(); err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}
+
 	if !c.zoneSpawned {
 		/**
 		 * spawn zones as early as possible
@@ -110,37 +121,11 @@ func (c *Consumer) OnGameTime(evt *event.GameTimeEvent) error {
 		}
 	}
 
-	if c.remainingTime() <= 0 && !c.zoneConquered {
-		// if the attacking team didn't conquer the zone within round_time destroy them - losers!
-		for _, p := range c.ofTeam.Players {
-			if err := command.Kill(p.Id); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
 	if err := c.printRemainingTime(); err != nil {
 		return err
 	}
 
 	return c.checkBonus()
-}
-
-func (c *Consumer) OnTeamCreated(evt *event.TeamCreatedEvent) error {
-	t := c.gs.GetTeam(evt.TeamId)
-
-	switch t.Id {
-	case teamBlue:
-		t.SetString(keyColor, "0x4488ff")
-	case teamGold:
-		t.SetString(keyColor, "0xffff44")
-	default:
-		return fmt.Errorf("unknown team = %s", t.Id)
-	}
-
-	return nil
 }
 
 func (c *Consumer) OnSpawnPositionTeam(evt *event.SpawnPositionTeamEvent) error {
@@ -174,13 +159,6 @@ func (c *Consumer) reset() error {
 	c.zoneConquered = false
 	c.zoneSpawned = false
 
-	if err := c.OnTeamCreated(&event.TeamCreatedEvent{TeamId: teamBlue}); err != nil {
-		return err
-	}
-	if err := c.OnTeamCreated(&event.TeamCreatedEvent{TeamId: teamGold}); err != nil {
-		return err
-	}
-
 	if err := c.OnSpawnPositionTeam(&event.SpawnPositionTeamEvent{
 		TeamId:   teamBlue,
 		Position: 0,
@@ -209,10 +187,9 @@ func (c *Consumer) playerDied(pId string) error {
 		return fmt.Errorf("cannot find team for player %s", pId)
 	}
 
-	color := t.GetString(keyColor)
 	respawns := p.GetInt(keyRespawns)
 	if respawns >= c.o.Respawns {
-		return command.ConsoleMessage(fmt.Sprintf("%s%s 0xffffffdied", color, p.ScreenName))
+		return command.ConsoleMessage(fmt.Sprintf("%s 0xffffffdied", p.GetColoredName()))
 	} else {
 		r := c.o.SpawnRadius
 		x := randFloat64(250-r, 250+r)
@@ -225,7 +202,7 @@ func (c *Consumer) playerDied(pId string) error {
 		respawns++
 		p.SetInt(keyRespawns, respawns)
 
-		msg := fmt.Sprintf("%s%s 0xffffffhas been respawned. 0x00ff00%d 0xffffffrespawns remaining", color, p.ScreenName, c.o.Respawns-respawns)
+		msg := fmt.Sprintf("%s 0xffffffhas been respawned. 0x00ff00%d 0xffffffrespawns remaining", p.GetColoredName(), c.o.Respawns-respawns)
 		if err := command.ConsoleMessage(msg); err != nil {
 			return err
 		}
@@ -289,13 +266,13 @@ func (c *Consumer) checkBonus() error {
 		return err
 	}
 
-	msg := fmt.Sprintf("%d bonus points awarded to %s%s", c.o.BonusScore, c.defTeam.GetString(keyColor), c.defTeam.ScreenName)
+	msg := fmt.Sprintf("%d bonus points awarded to %s", c.o.BonusScore, c.defTeam.GetColoredName())
 
 	return command.ConsoleMessage(msg)
 }
 
 func roleMessage(msg string, t *tron.Team) error {
-	color := t.GetString(keyColor)
+	color := t.GetColor()
 	name := t.ScreenName
 	stars := fmt.Sprintf("%s%s", color, decorateString("", "*", 40))
 	msgs := []string{

@@ -10,6 +10,10 @@ func NewConsumer(state *GameState) *Consumer {
 	c := &Consumer{state: state}
 
 	subs := []*parser.Subscription{
+		event.PlayerAiEntered(c),
+		event.PlayerAiLeft(c),
+		event.TeamColoredName(c),
+		event.PlayerColoredName(c),
 		event.TeamCreated(c),
 		event.PlayerEnteredGrid(c),
 		event.OnlinePlayer(c),
@@ -36,8 +40,32 @@ type Consumer struct {
 	subs  []*parser.Subscription
 }
 
-func (c *Consumer) GetSubscriptions() []*parser.Subscription {
-	return c.subs
+func (c *Consumer) OnPlayerAiEntered(evt *event.PlayerAiEnteredEvent) error {
+	p := c.state.GetPlayer(evt.PlayerId)
+	p.ScreenName = evt.ScreenName
+	p.IsHuman = false
+
+	return nil
+}
+
+func (c *Consumer) OnPlayerAiLeft(evt *event.PlayerAiLeftEvent) error {
+	c.state.RemovePlayer(evt.PlayerId)
+
+	return nil
+}
+
+func (c *Consumer) OnTeamColoredName(evt *event.TeamColoredNameEvent) error {
+	t := c.state.GetTeam(evt.TeamId)
+	t.ColoredName = evt.ColoredName
+
+	return nil
+}
+
+func (c *Consumer) OnPlayerColoredName(evt *event.PlayerColoredNameEvent) error {
+	p := c.state.GetPlayer(evt.PlayerId)
+	p.ColoredName = evt.ColoredName
+
+	return nil
 }
 
 func (c *Consumer) OnTeamCreated(evt *event.TeamCreatedEvent) error {
@@ -125,9 +153,11 @@ func (c *Consumer) OnOnlinePlayer(evt *event.OnlinePlayerEvent) error {
 	p := c.state.GetPlayer(evt.PlayerId)
 
 	p.AccessLevel = evt.AccessLevel
-	p.Red = evt.Red
-	p.Green = evt.Green
-	p.Blue = evt.Blue
+	p.Color = &Color{
+		R: evt.Red,
+		G: evt.Green,
+		B: evt.Blue,
+	}
 
 	t := c.state.GetTeamByPlayerId(p.Id)
 	if t != nil && t.Id != evt.TeamId {
@@ -143,7 +173,7 @@ func (c *Consumer) OnOnlinePlayer(evt *event.OnlinePlayerEvent) error {
 
 func (c *Consumer) OnDeathSuicide(evt *event.DeathSuicideEvent) error {
 	p := c.state.GetPlayer(evt.PlayerId)
-
+	p.Alive = false
 	p.Deaths++
 	p.Suicides++
 
@@ -153,7 +183,7 @@ func (c *Consumer) OnDeathSuicide(evt *event.DeathSuicideEvent) error {
 func (c *Consumer) OnDeathTeamkill(evt *event.DeathTeamkillEvent) error {
 	h := c.state.GetPlayer(evt.HunterId)
 	p := c.state.GetPlayer(evt.PreyId)
-
+	p.Alive = false
 	h.TeamKills++
 	p.Deaths++
 
@@ -163,9 +193,13 @@ func (c *Consumer) OnDeathTeamkill(evt *event.DeathTeamkillEvent) error {
 func (c *Consumer) OnDeathFrag(evt *event.DeathFragEvent) error {
 	h := c.state.GetPlayer(evt.HunterId)
 	p := c.state.GetPlayer(evt.PreyId)
-
+	p.Alive = false
 	h.Kills++
 	p.Deaths++
 
 	return nil
+}
+
+func (c *Consumer) GetSubscriptions() []*parser.Subscription {
+	return c.subs
 }

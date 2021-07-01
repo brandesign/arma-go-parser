@@ -497,11 +497,11 @@ type OnlineAiEvent struct {
 type OnlinePlayerEvent struct {
 	Name        string
 	PlayerId    string
-	Red         int
-	Green       int
-	Blue        int
+	Red         uint8
+	Green       uint8
+	Blue        uint8
 	AccessLevel int
-	LoggedIn    bool
+	LoggedIn    string
 	Ping        float64
 	TeamId      string
 }
@@ -529,17 +529,19 @@ type OnlineTeamEvent struct {
 
 // PlayerAiEnteredEvent handles PLAYER_AI_ENTERED <name> <screen name>
 type PlayerAiEnteredEvent struct {
-	// TODO: implement
+	PlayerId   string
+	ScreenName string
 }
 
 // PlayerAiLeftEvent handles PLAYER_AI_LEFT [ai_name]
 type PlayerAiLeftEvent struct {
-	// TODO: implement
+	PlayerId string
 }
 
 // PlayerColoredNameEvent handles PLAYER_COLORED_NAME [player_useranme] [player_colored_name]
 type PlayerColoredNameEvent struct {
-	// TODO: implement
+	PlayerId    string
+	ColoredName string
 }
 
 // PlayerEnteredGridEvent handles PLAYER_ENTERED_GRID <name> <IP> <screen name>
@@ -714,7 +716,8 @@ type TargetzoneTimeoutEvent struct {
 
 // TeamColoredNameEvent handles TEAM_COLORED_NAME [team_name] [team_colored_name]
 type TeamColoredNameEvent struct {
-	// TODO: implement
+	TeamId      string
+	ColoredName string
 }
 
 // TeamCreatedEvent handles TEAM_CREATED <team name>

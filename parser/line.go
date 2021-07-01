@@ -77,6 +77,12 @@ func scanArg(arg string, refVal reflect.Value) error {
 			return err
 		}
 		refVal.SetInt(v)
+	case reflect.Uint8:
+		v, err := strconv.ParseInt(arg, 10, 8)
+		if err != nil {
+			return err
+		}
+		refVal.Set(reflect.ValueOf(uint8(v)))
 	case reflect.Float32, reflect.Float64:
 		v, err := strconv.ParseFloat(arg, 64)
 		if err != nil {
