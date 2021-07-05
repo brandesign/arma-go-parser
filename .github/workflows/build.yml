@@ -2,13 +2,8 @@ name: build
 
 on:
   push:
-    paths-ignore:
-      - README.md
-      - LICENSE
-    branches:
-      - master
-      - main
-  workflow_dispatch:
+    tags:
+      - '*'
 
 jobs:
   goreleaser:
