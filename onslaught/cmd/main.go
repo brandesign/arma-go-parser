@@ -6,6 +6,7 @@ import (
 	"github.com/brandesign/arma-go-parser/onslaught"
 	"github.com/brandesign/arma-go-parser/parser"
 	"github.com/brandesign/arma-go-parser/tron"
+	"os"
 )
 
 func main() {
@@ -23,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	p, err := parser.NewParser(event.Handlers, bc, oc)
+	p, err := parser.NewParser(os.Stdin, event.Handlers, bc, oc)
 	if err != nil {
 		panic(err)
 	}

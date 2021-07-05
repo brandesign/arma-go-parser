@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/brandesign/arma-go-parser/command"
-	"os"
+	"io"
 )
 
 type Handlers map[string]func() interface{}
@@ -14,8 +14,9 @@ type Subscriber interface {
 	GetSubscriptions() []*Subscription
 }
 
-func NewParser(handlers Handlers, subscribers ...Subscriber) (*Parser, error) {
+func NewParser(r io.Reader, handlers Handlers, subscribers ...Subscriber) (*Parser, error) {
 	p := &Parser{
+		reader:    r,
 		listeners: map[string][]func(evt interface{}) error{},
 		handlers:  handlers,
 	}
@@ -33,12 +34,13 @@ func NewParser(handlers Handlers, subscribers ...Subscriber) (*Parser, error) {
 }
 
 type Parser struct {
+	reader    io.Reader
 	listeners map[string][]func(evt interface{}) error
 	handlers  Handlers
 }
 
 func (p *Parser) Run(ctx context.Context) {
-	scanner := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(p.reader)
 	for {
 		select {
 		case <-ctx.Done():
