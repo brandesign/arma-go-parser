@@ -93,15 +93,16 @@ func (c *Consumer) OnBasezoneConquered(evt *event.BasezoneConqueredEvent) error 
 func (c *Consumer) OnGameTime(evt *event.GameTimeEvent) error {
 	if c.remainingTime() <= 0 && !c.zoneConquered {
 		// if the attacking team didn't conquer the zone within round_time destroy them - losers!
-		for _, p := range c.ofTeam.Players {
-			if p.Alive {
-				if err := p.Kill(); err != nil {
-					return err
-				}
+		var err error
+		c.gs.PlayersRange(func(id string, player *tron.Player) bool {
+			if player.Alive && player.TeamId == c.ofTeam.Id {
+				err = player.Kill()
 			}
-		}
 
-		return nil
+			return err == nil
+		})
+
+		return err
 	}
 
 	if !c.zoneSpawned {
@@ -201,6 +202,7 @@ func (c *Consumer) playerDied(pId string) error {
 
 		respawns++
 		p.SetInt(keyRespawns, respawns)
+		p.Alive = true
 
 		msg := fmt.Sprintf("%s 0xffffffhas been respawned. 0x00ff00%d 0xffffffrespawns remaining", p.GetColoredName(), c.o.Respawns-respawns)
 		if err := command.ConsoleMessage(msg); err != nil {

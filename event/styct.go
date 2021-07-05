@@ -495,8 +495,8 @@ type OnlineAiEvent struct {
 // OnlinePlayerEvent handles ONLINE_PLAYER <name> <id> <r> <g> <b> <access_level> <did_login?> [<ping> <team>]
 // ONLINE_PLAYER jip 1 11 12 10 20 114 0.49454 team_blue
 type OnlinePlayerEvent struct {
-	Name        string
 	PlayerId    string
+	NumericId   int
 	Red         uint8
 	Green       uint8
 	Blue        uint8

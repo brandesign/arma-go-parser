@@ -43,7 +43,7 @@ func (g *GameState) AddTeam(t *Team) {
 func (g *GameState) GetTeam(id string) *Team {
 	ti, ok := g.teams.Load(id)
 	if !ok {
-		t := &Team{Id: id, Players: map[string]*Player{}}
+		t := &Team{Id: id}
 		g.AddTeam(t)
 		return t
 	}
@@ -52,17 +52,12 @@ func (g *GameState) GetTeam(id string) *Team {
 }
 
 func (g *GameState) GetTeamByPlayerId(playerId string) *Team {
-	var t *Team
-	g.teams.Range(func(key, value interface{}) bool {
-		team := value.(*Team)
-		_, ok := team.Players[playerId]
-		if ok {
-			t = team
-		}
-		return t == nil
-	})
+	p := g.GetPlayer(playerId)
+	if p.TeamId == "" {
+		return nil
+	}
 
-	return t
+	return g.GetTeam(p.TeamId)
 }
 
 func (g *GameState) RemoveTeam(id string) {

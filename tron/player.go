@@ -26,6 +26,7 @@ func NewVector2(x, y float64) Vector2 {
 
 type Player struct {
 	Id          string
+	TeamId      string
 	ScreenName  string
 	ColoredName string
 	Ip          string

@@ -10,6 +10,7 @@ func NewConsumer(state *GameState) *Consumer {
 	c := &Consumer{state: state}
 
 	subs := []*parser.Subscription{
+		event.NewRound(c),
 		event.PlayerAiEntered(c),
 		event.PlayerAiLeft(c),
 		event.TeamColoredName(c),
@@ -38,6 +39,15 @@ func NewConsumer(state *GameState) *Consumer {
 type Consumer struct {
 	state *GameState
 	subs  []*parser.Subscription
+}
+
+func (c *Consumer) OnNewRound(evt *event.NewRoundEvent) error {
+	c.state.PlayersRange(func(_ string, player *Player) bool {
+		player.Alive = true
+		return true
+	})
+
+	return nil
 }
 
 func (c *Consumer) OnPlayerAiEntered(evt *event.PlayerAiEnteredEvent) error {
@@ -109,15 +119,15 @@ func (c *Consumer) OnTeamRenamed(evt *event.TeamRenamedEvent) error {
 }
 
 func (c *Consumer) OnTeamPlayerRemoved(evt *event.TeamPlayerRemovedEvent) error {
-	t := c.state.GetTeam(evt.TeamId)
-	t.RemovePlayer(evt.PlayerId)
+	p := c.state.GetPlayer(evt.PlayerId)
+	p.TeamId = ""
 
 	return nil
 }
 
 func (c *Consumer) OnTeamPlayerAdded(evt *event.TeamPlayerAddedEvent) error {
-	t := c.state.GetTeam(evt.TeamId)
-	t.AddPlayer(c.state.GetPlayer(evt.PlayerId))
+	p := c.state.GetPlayer(evt.PlayerId)
+	p.TeamId = evt.TeamId
 
 	return nil
 }
@@ -153,19 +163,11 @@ func (c *Consumer) OnOnlinePlayer(evt *event.OnlinePlayerEvent) error {
 	p := c.state.GetPlayer(evt.PlayerId)
 
 	p.AccessLevel = evt.AccessLevel
+	p.TeamId = evt.TeamId
 	p.Color = &Color{
 		R: evt.Red,
 		G: evt.Green,
 		B: evt.Blue,
-	}
-
-	t := c.state.GetTeamByPlayerId(p.Id)
-	if t != nil && t.Id != evt.TeamId {
-		t.RemovePlayer(p.Id)
-	}
-
-	if evt.TeamId != "" {
-		c.state.GetTeam(evt.TeamId).AddPlayer(p)
 	}
 
 	return nil
