@@ -39,11 +39,6 @@ type Player struct {
 
 	Color *Color
 
-	Kills     int
-	TeamKills int
-	Deaths    int
-	Suicides  int
-
 	Property
 }
 

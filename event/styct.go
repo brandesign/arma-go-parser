@@ -220,7 +220,7 @@ type CycleCreatedEvent struct {
 	DirX     float64
 	DirY     float64
 	TeamId   string
-	Time     int
+	Time     float64
 }
 
 // CycleDeathTeleportEvent handles CYCLE_DEATH_TELEPORT [auth_name] [posx] [posy] [dirx] [diry] [team_name] [time] [reason] [predator]
@@ -242,7 +242,7 @@ type CycleDestroyedEvent struct {
 	DirX     float64
 	DirY     float64
 	TeamId   string
-	Time     int
+	Time     float64
 	Reason   string
 	Predator string
 }

@@ -10,7 +10,8 @@ func NewConsumer(state *GameState) *Consumer {
 	c := &Consumer{state: state}
 
 	subs := []*parser.Subscription{
-		event.NewRound(c),
+		event.CycleDestroyed(c),
+		event.CycleCreated(c),
 		event.PlayerAiEntered(c),
 		event.PlayerAiLeft(c),
 		event.TeamColoredName(c),
@@ -19,9 +20,6 @@ func NewConsumer(state *GameState) *Consumer {
 		event.PlayerEnteredGrid(c),
 		event.OnlinePlayer(c),
 		event.OnlineTeam(c),
-		event.DeathSuicide(c),
-		event.DeathTeamkill(c),
-		event.DeathFrag(c),
 		event.PlayerLeft(c),
 		event.PlayerRenamed(c),
 		event.TeamDestroyed(c),
@@ -41,11 +39,16 @@ type Consumer struct {
 	subs  []*parser.Subscription
 }
 
-func (c *Consumer) OnNewRound(evt *event.NewRoundEvent) error {
-	c.state.PlayersRange(func(_ string, player *Player) bool {
-		player.Alive = true
-		return true
-	})
+func (c *Consumer) OnCycleDestroyed(evt *event.CycleDestroyedEvent) error {
+	p := c.state.GetPlayer(evt.PlayerId)
+	p.Alive = false
+
+	return nil
+}
+
+func (c *Consumer) OnCycleCreated(evt *event.CycleCreatedEvent) error {
+	p := c.state.GetPlayer(evt.PlayerId)
+	p.Alive = true
 
 	return nil
 }
@@ -169,35 +172,6 @@ func (c *Consumer) OnOnlinePlayer(evt *event.OnlinePlayerEvent) error {
 		G: evt.Green,
 		B: evt.Blue,
 	}
-
-	return nil
-}
-
-func (c *Consumer) OnDeathSuicide(evt *event.DeathSuicideEvent) error {
-	p := c.state.GetPlayer(evt.PlayerId)
-	p.Alive = false
-	p.Deaths++
-	p.Suicides++
-
-	return nil
-}
-
-func (c *Consumer) OnDeathTeamkill(evt *event.DeathTeamkillEvent) error {
-	h := c.state.GetPlayer(evt.HunterId)
-	p := c.state.GetPlayer(evt.PreyId)
-	p.Alive = false
-	h.TeamKills++
-	p.Deaths++
-
-	return nil
-}
-
-func (c *Consumer) OnDeathFrag(evt *event.DeathFragEvent) error {
-	h := c.state.GetPlayer(evt.HunterId)
-	p := c.state.GetPlayer(evt.PreyId)
-	p.Alive = false
-	h.Kills++
-	p.Deaths++
 
 	return nil
 }
